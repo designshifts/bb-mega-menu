@@ -1,0 +1,25 @@
+.has-mega-menu > a,
+.has-mega-menu > button,
+.has-mega-menu > span > a,
+.has-mega-menu > span > button {
+  padding: 9px 30px 9px 15px;
+  position: relative;
+}
+
+.has-mega-menu > a:after,
+.has-mega-menu > button:after {
+  content: "\f107";
+  font-family: "Font Awesome 6 Pro";
+  font-weight: 900;
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease-out;
+  font-size: 0.8rem;
+}
+
+.has-mega-menu.has-mega-menu-open > a:after,
+.has-mega-menu.has-mega-menu-open > button:after {
+  transform: translateY(-50%) rotate(180deg);
+}

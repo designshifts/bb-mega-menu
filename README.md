@@ -7,11 +7,33 @@ Mega menu CPT and frontend behavior for classic menus and the Navigation block.
 - Moved mega menu CSS/JS out of the theme into this plugin.
 - Added Navigation block support by injecting mega menu markup into `core/navigation-link`.
 - Kept classic menu support for the `primary` menu location.
+ - Added settings-driven CSS variables and optional default styling.
 
 ## How It Works
 - A navigation item becomes a mega menu trigger when its label matches a `Mega Menu` post title.
 - The plugin converts the nav item link into a button and injects the mega menu markup.
 - The frontend script controls open/close behavior and accessibility states.
+
+## Settings
+Go to Appearance -> BB Mega Menu.
+
+Available settings (stored in `bb_mega_menu_settings`):
+- Header / Nav Height Offset
+- Panel Padding
+- Z-index
+- Enable Default Styling (toggle)
+- Panel Background
+- Panel Shadow (None/Subtle/Medium)
+- Transition Speed (ms)
+
+CSS Variables output:
+- `--bb-mm-header-offset`
+- `--bb-mm-z`
+- `--bb-mm-max-width`
+- `--bb-mm-panel-padding`
+- `--bb-mm-panel-bg`
+- `--bb-mm-panel-shadow`
+- `--bb-mm-transition`
 
 ## Testing Steps
 1. Activate the plugin: **BB Mega Menu**.

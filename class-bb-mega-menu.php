@@ -17,6 +17,9 @@ final class BB_Mega_Menu {
 	 * Theme menu location to target for classic menus.
 	 */
 	private const MENU_LOCATION = 'primary';
+	private const SETTINGS_KEY  = 'bb_mega_menu_settings';
+	private const SETTINGS_PAGE = 'bb-mega-menu-settings';
+	private const SETTINGS_PARENT = 'themes.php';
 
 	/**
 	 * Cached mega menu IDs keyed by title.
@@ -32,10 +35,13 @@ final class BB_Mega_Menu {
 		add_action( 'init', array( $this, 'register_cpt' ), 20 );
 		add_action( 'wp_loaded', array( $this, 'build_mega_menu_cache' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'admin_menu', array( $this, 'register_settings_page' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_filter( 'wp_nav_menu_args', array( $this, 'limit_menu_depth' ) );
 		add_filter( 'nav_menu_css_class', array( $this, 'menu_item_classes' ), 10, 4 );
 		add_filter( 'walker_nav_menu_start_el', array( $this, 'display_mega_menus' ), 10, 4 );
 		add_filter( 'render_block', array( $this, 'inject_navigation_block_mega_menu' ), 10, 2 );
+		add_filter( 'body_class', array( $this, 'add_body_class' ) );
 	}
 
 	/**
@@ -79,15 +85,39 @@ final class BB_Mega_Menu {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		$css_path = plugin_dir_path( __FILE__ ) . 'assets/css/mega-menu.css';
+		$base_css_path  = plugin_dir_path( __FILE__ ) . 'assets/css/mega-menu-base.css';
+		$theme_css_path = plugin_dir_path( __FILE__ ) . 'assets/css/mega-menu-theme.css';
 		$js_path  = plugin_dir_path( __FILE__ ) . 'assets/js/mega-menu.js';
+		$settings = $this->get_settings();
 
 		wp_enqueue_style(
-			'bb-mega-menu',
-			plugin_dir_url( __FILE__ ) . 'assets/css/mega-menu.css',
+			'bb-mega-menu-base',
+			plugin_dir_url( __FILE__ ) . 'assets/css/mega-menu-base.css',
 			array(),
-			file_exists( $css_path ) ? filemtime( $css_path ) : '1.0.0'
+			file_exists( $base_css_path ) ? filemtime( $base_css_path ) : '1.0.0'
 		);
+
+		if ( ! empty( $settings['use_default_styling'] ) ) {
+			wp_enqueue_style(
+				'bb-mega-menu-theme',
+				plugin_dir_url( __FILE__ ) . 'assets/css/mega-menu-theme.css',
+				array( 'bb-mega-menu-base' ),
+				file_exists( $theme_css_path ) ? filemtime( $theme_css_path ) : '1.0.0'
+			);
+		}
+
+		$inline_css = sprintf(
+			':root{--bb-mm-header-offset:%1$s;--bb-mm-z:%2$d;--bb-mm-max-width:%3$s;--bb-mm-panel-padding:%4$s;--bb-mm-panel-bg:%5$s;--bb-mm-panel-shadow:%6$s;--bb-mm-transition:%7$dms;}',
+			esc_attr( $settings['header_offset'] ),
+			(int) $settings['z_index'],
+			'100%',
+			esc_attr( $settings['panel_padding'] ),
+			esc_attr( $settings['panel_bg'] ),
+			esc_attr( $this->get_shadow_value( $settings['panel_shadow'] ) ),
+			(int) $settings['transition_ms']
+		);
+
+		wp_add_inline_style( 'bb-mega-menu-base', $inline_css );
 
 		wp_enqueue_script(
 			'bb-mega-menu',
@@ -96,6 +126,321 @@ final class BB_Mega_Menu {
 			file_exists( $js_path ) ? filemtime( $js_path ) : '1.0.0',
 			true
 		);
+	}
+
+	/**
+	 * Add body class for styling toggle.
+	 *
+	 * @param array $classes Existing classes.
+	 * @return array
+	 */
+	public function add_body_class( array $classes ): array {
+		$settings = $this->get_settings();
+		if ( ! empty( $settings['use_default_styling'] ) ) {
+			$classes[] = 'bb-mm-default-styling-on';
+		} else {
+			$classes[] = 'bb-mm-default-styling-off';
+		}
+		return $classes;
+	}
+
+	/**
+	 * Register settings page under Appearance.
+	 *
+	 * @return void
+	 */
+	public function register_settings_page(): void {
+		add_submenu_page(
+			self::SETTINGS_PARENT,
+			__( 'BB Mega Menu', 'bb-mega-menu' ),
+			__( 'BB Mega Menu', 'bb-mega-menu' ),
+			'manage_options',
+			self::SETTINGS_PAGE,
+			array( $this, 'render_settings_page' )
+		);
+	}
+
+	/**
+	 * Register settings.
+	 *
+	 * @return void
+	 */
+	public function register_settings(): void {
+		register_setting(
+			'bb_mega_menu_settings_group',
+			self::SETTINGS_KEY,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_settings' ),
+				'default'           => $this->get_default_settings(),
+			)
+		);
+
+		add_settings_section(
+			'bb_mega_menu_settings_layout',
+			__( 'Layout', 'bb-mega-menu' ),
+			'__return_false',
+			self::SETTINGS_PAGE
+		);
+
+		$this->add_setting_field( 'header_offset', __( 'Header / Nav Height Offset', 'bb-mega-menu' ), 'text', 'bb_mega_menu_settings_layout' );
+		$this->add_setting_field( 'panel_padding', __( 'Panel Padding', 'bb-mega-menu' ), 'text', 'bb_mega_menu_settings_layout' );
+		$this->add_setting_field( 'z_index', __( 'Z-index', 'bb-mega-menu' ), 'number', 'bb_mega_menu_settings_layout' );
+
+		add_settings_section(
+			'bb_mega_menu_settings_appearance',
+			__( 'Appearance', 'bb-mega-menu' ),
+			'__return_false',
+			self::SETTINGS_PAGE
+		);
+
+		$this->add_setting_field( 'use_default_styling', __( 'Enable Default Styling', 'bb-mega-menu' ), 'checkbox', 'bb_mega_menu_settings_appearance' );
+		$this->add_setting_field( 'panel_bg', __( 'Panel Background', 'bb-mega-menu' ), 'text', 'bb_mega_menu_settings_appearance' );
+		$this->add_setting_field( 'panel_shadow', __( 'Panel Shadow', 'bb-mega-menu' ), 'select', 'bb_mega_menu_settings_appearance', $this->get_shadow_options() );
+
+		add_settings_section(
+			'bb_mega_menu_settings_behavior',
+			__( 'Behavior', 'bb-mega-menu' ),
+			'__return_false',
+			self::SETTINGS_PAGE
+		);
+
+		$this->add_setting_field( 'transition_ms', __( 'Transition Speed (ms)', 'bb-mega-menu' ), 'number', 'bb_mega_menu_settings_behavior' );
+	}
+
+	/**
+	 * Render settings page.
+	 *
+	 * @return void
+	 */
+	public function render_settings_page(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'BB Mega Menu Settings', 'bb-mega-menu' ); ?></h1>
+			<form method="post" action="options.php">
+				<?php
+				settings_fields( 'bb_mega_menu_settings_group' );
+				do_settings_sections( self::SETTINGS_PAGE );
+				submit_button();
+				?>
+			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render a settings field.
+	 *
+	 * @param string $key Option key.
+	 * @param string $label Field label.
+	 * @param string $type Field type.
+	 * @param string $section Section id.
+	 * @param array  $options Select options.
+	 * @return void
+	 */
+	private function add_setting_field( string $key, string $label, string $type, string $section, array $options = array() ): void {
+		$descriptions = array(
+			'header_offset'       => __( 'Top offset for the mega menu panel (e.g. 60px or 4rem).', 'bb-mega-menu' ),
+			'panel_padding'       => __( 'Inner padding for the mega menu panel (e.g. 24px).', 'bb-mega-menu' ),
+			'z_index'             => __( 'Stacking order for the mega menu panel.', 'bb-mega-menu' ),
+			'use_default_styling' => __( 'Enable simple default styling (caret + padding).', 'bb-mega-menu' ),
+			'panel_bg'            => __( 'Background color for the mega menu panel.', 'bb-mega-menu' ),
+			'panel_shadow'        => __( 'Optional shadow preset for the panel.', 'bb-mega-menu' ),
+			'transition_ms'       => __( 'Transition speed in milliseconds.', 'bb-mega-menu' ),
+		);
+		add_settings_field(
+			$key,
+			$label,
+			function () use ( $key, $type, $options, $descriptions ) {
+				$settings = $this->get_settings();
+				$value    = $settings[ $key ] ?? '';
+
+				if ( 'checkbox' === $type ) {
+					printf(
+						'<label><input type="checkbox" name="%1$s[%2$s]" value="1" %3$s /></label>',
+						esc_attr( self::SETTINGS_KEY ),
+						esc_attr( $key ),
+						checked( (bool) $value, true, false )
+					);
+					if ( isset( $descriptions[ $key ] ) ) {
+						printf( '<p class="description">%s</p>', esc_html( $descriptions[ $key ] ) );
+					}
+					return;
+				}
+
+				if ( 'select' === $type ) {
+					echo '<select name="' . esc_attr( self::SETTINGS_KEY ) . '[' . esc_attr( $key ) . ']">';
+					foreach ( $options as $option_value => $option_label ) {
+						printf(
+							'<option value="%1$s" %2$s>%3$s</option>',
+							esc_attr( $option_value ),
+							selected( $value, $option_value, false ),
+							esc_html( $option_label )
+						);
+					}
+					echo '</select>';
+					if ( isset( $descriptions[ $key ] ) ) {
+						printf( '<p class="description">%s</p>', esc_html( $descriptions[ $key ] ) );
+					}
+					return;
+				}
+
+				printf(
+					'<input type="%1$s" class="regular-text" name="%2$s[%3$s]" value="%4$s" />',
+					esc_attr( $type ),
+					esc_attr( self::SETTINGS_KEY ),
+					esc_attr( $key ),
+					esc_attr( $value )
+				);
+				if ( isset( $descriptions[ $key ] ) ) {
+					printf( '<p class="description">%s</p>', esc_html( $descriptions[ $key ] ) );
+				}
+			},
+			self::SETTINGS_PAGE,
+			$section
+		);
+	}
+
+	/**
+	 * Sanitize settings input.
+	 *
+	 * @param array $input Raw settings.
+	 * @return array
+	 */
+	public function sanitize_settings( array $input ): array {
+		$defaults = $this->get_default_settings();
+		$output   = $defaults;
+
+		$output['header_offset'] = $this->sanitize_css_size( $input['header_offset'] ?? $defaults['header_offset'], $defaults['header_offset'] );
+		$output['max_width']     = $defaults['max_width'];
+		$output['panel_padding'] = $this->sanitize_css_size( $input['panel_padding'] ?? $defaults['panel_padding'], $defaults['panel_padding'] );
+		$output['panel_bg']      = $this->sanitize_color( $input['panel_bg'] ?? $defaults['panel_bg'] );
+		$output['panel_shadow']  = $this->sanitize_shadow( $input['panel_shadow'] ?? $defaults['panel_shadow'] );
+		$output['transition_ms'] = $this->sanitize_int_range( $input['transition_ms'] ?? $defaults['transition_ms'], 0, 2000 );
+		$output['z_index']       = $this->sanitize_int_range( $input['z_index'] ?? $defaults['z_index'], 1, 999999 );
+		$output['use_default_styling'] = ! empty( $input['use_default_styling'] ) ? 1 : 0;
+
+		return $output;
+	}
+
+	/**
+	 * Get merged settings with defaults.
+	 *
+	 * @return array
+	 */
+	private function get_settings(): array {
+		$defaults = $this->get_default_settings();
+		$settings = get_option( self::SETTINGS_KEY, array() );
+		return array_merge( $defaults, is_array( $settings ) ? $settings : array() );
+	}
+
+	/**
+	 * Default settings.
+	 *
+	 * @return array
+	 */
+	private function get_default_settings(): array {
+		return array(
+			'header_offset'       => '0px',
+			'z_index'             => 9999,
+			'max_width'           => '100%',
+			'panel_padding'       => '24px',
+			'panel_bg'            => '#ffffff',
+			'panel_shadow'        => 'none',
+			'transition_ms'       => 200,
+			'use_default_styling' => 1,
+		);
+	}
+
+	/**
+	 * Allow limited CSS size values.
+	 *
+	 * @param string $value Raw value.
+	 * @return string
+	 */
+	private function sanitize_css_size( string $value, string $fallback ): string {
+		$value = trim( $value );
+		if ( preg_match( '/^\d+(\.\d+)?(px|rem|em|vh|vw|%)$/', $value ) ) {
+			return $value;
+		}
+		return $fallback;
+	}
+
+	/**
+	 * Sanitize color values.
+	 *
+	 * @param string $value Raw value.
+	 * @return string
+	 */
+	private function sanitize_color( string $value ): string {
+		$value = trim( $value );
+		if ( 'transparent' === $value ) {
+			return 'transparent';
+		}
+		return sanitize_hex_color( $value ) ?: '#ffffff';
+	}
+
+	/**
+	 * Sanitize shadow selection.
+	 *
+	 * @param string $value Raw value.
+	 * @return string
+	 */
+	private function sanitize_shadow( string $value ): string {
+		$options = $this->get_shadow_options();
+		return isset( $options[ $value ] ) ? $value : 'none';
+	}
+
+	/**
+	 * Shadow options.
+	 *
+	 * @return array
+	 */
+	private function get_shadow_options(): array {
+		return array(
+			'none'   => __( 'None', 'bb-mega-menu' ),
+			'subtle' => __( 'Subtle', 'bb-mega-menu' ),
+			'medium' => __( 'Medium', 'bb-mega-menu' ),
+		);
+	}
+
+	/**
+	 * Map shadow preset to CSS value.
+	 *
+	 * @param string $preset Shadow preset key.
+	 * @return string
+	 */
+	private function get_shadow_value( string $preset ): string {
+		switch ( $preset ) {
+			case 'medium':
+				return '0 1.25rem 1.5rem rgba(0, 0, 0, 0.18)';
+			case 'subtle':
+				return '0 0.75rem 1rem rgba(0, 0, 0, 0.12)';
+			default:
+				return 'none';
+		}
+	}
+
+	/**
+	 * Sanitize int ranges.
+	 *
+	 * @param mixed $value Raw value.
+	 * @param int   $min Minimum.
+	 * @param int   $max Maximum.
+	 * @return int
+	 */
+	private function sanitize_int_range( $value, int $min, int $max ): int {
+		$value = (int) $value;
+		if ( $value < $min ) {
+			return $min;
+		}
+		if ( $value > $max ) {
+			return $max;
+		}
+		return $value;
 	}
 
 	/**

@@ -1,0 +1,39 @@
+.has-mega-menu {
+  position: relative;
+}
+
+body.admin-bar {
+  --bb-mm-adminbar-offset: 46px;
+}
+
+@media (min-width: 783px) {
+  body.admin-bar {
+    --bb-mm-adminbar-offset: 32px;
+  }
+}
+
+.has-mega-menu > .mega-menu {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: var(--bb-mm-z, 9999);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background: var(--bb-mm-panel-bg, transparent);
+  box-shadow: var(--bb-mm-panel-shadow, none);
+  transition: opacity var(--bb-mm-transition, 200ms) ease-in-out;
+}
+
+.has-mega-menu-open > .mega-menu {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  top: calc(var(--bb-mm-header-offset, var(--header-height, 0px)) + var(--bb-mm-adminbar-offset, 0px));
+}
+
+.mega-menu .wrap {
+  max-width: 100%;
+  margin: 0 auto;
+}
