@@ -29,7 +29,7 @@ Create a Mega Menu post and make sure its title exactly matches a navigation ite
 Yes. The plugin targets `core/navigation-link` blocks and injects the Mega Menu content.
 
 = Does this work with classic menus? =
-Yes. Classic menu support targets the `primary` theme location.
+Yes. Classic menu support targets the `primary` theme location and works with the default WordPress menu walker. If a theme uses a custom walker that bypasses the `walker_nav_menu_start_el` filter, the mega menu injection won’t run and the theme may need a small adjustment.
 
 = Where do I configure the settings? =
 Go to Appearance → BB Mega Menu.

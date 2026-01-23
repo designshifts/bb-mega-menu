@@ -32,7 +32,6 @@ final class BB_Mega_Menu {
 	 * Wire up hooks.
 	 */
 	public function __construct() {
-		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this, 'register_cpt' ), 20 );
 		add_action( 'wp_loaded', array( $this, 'build_mega_menu_cache' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -78,15 +77,6 @@ final class BB_Mega_Menu {
 		);
 
 		register_post_type( 'megamenu', apply_filters( 'bb_mega_menu_post_type_args', $args ) );
-	}
-
-	/**
-	 * Load translations.
-	 *
-	 * @return void
-	 */
-	public function load_textdomain(): void {
-		load_plugin_textdomain( 'bb-mega-menu', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 
 	/**
@@ -551,7 +541,7 @@ final class BB_Mega_Menu {
 			'<div class="mega-menu" id="%1$s" role="region" aria-label="%2$s Mega Menu"><div class="wrap">%3$s</div></div>',
 			esc_attr( $menu_id ),
 			esc_html( $item->title ),
-			apply_filters( 'the_content', $submenu_object->post_content )
+			apply_filters( 'the_content', $submenu_object->post_content ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter.
 		);
 
 		return preg_replace( '/(<\/button>|<\/a>)/', '$1' . $submenu, $item_output, 1 );
@@ -587,7 +577,7 @@ final class BB_Mega_Menu {
 			'<div class="mega-menu" id="%1$s" role="region" aria-label="%2$s Mega Menu"><div class="wrap">%3$s</div></div>',
 			esc_attr( $menu_id ),
 			esc_html( $label ),
-			apply_filters( 'the_content', $submenu_object->post_content )
+			apply_filters( 'the_content', $submenu_object->post_content ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter.
 		);
 
 		return preg_replace( '/(<\/button>|<\/a>)/', '$1' . $submenu, $block_content, 1 );
