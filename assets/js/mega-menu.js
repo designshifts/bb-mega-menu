@@ -75,19 +75,6 @@
       const parent = trigger.parentElement;
       const megaMenu = parent ? parent.querySelector(".mega-menu") : null;
       const isOpen = parent && parent.classList.contains("has-mega-menu-open");
-      const menuLabel = trigger.textContent.trim().replace(/\s+/g, " ");
-      const isMobile = window.matchMedia("(max-width: 1024px)").matches;
-      const clickAction = isMobile
-        ? "Main Menu Mobile drop down"
-        : "Main Menu Desktop drop down";
-
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: "click",
-        click_action: clickAction,
-        click_value: menuLabel,
-      });
-
       closeMegaMenus();
 
       if (!isOpen && parent && megaMenu) {
@@ -110,22 +97,6 @@
         }
         updateMenuStatus("Menu opened");
       }
-    });
-  });
-
-  document.body.addEventListener("click", function (e) {
-    const link = e.target.closest(".mega-menu a");
-    if (!link) return;
-
-    const linkLabel = link.textContent.trim();
-    const isMobile = window.matchMedia("(max-width: 1024px)").matches;
-    const clickAction = isMobile ? "Main Menu Mobile click" : "Mega Menu inner click";
-
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "click",
-      click_action: clickAction,
-      click_value: linkLabel,
     });
   });
 

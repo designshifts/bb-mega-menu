@@ -32,6 +32,7 @@ final class BB_Mega_Menu {
 	 * Wire up hooks.
 	 */
 	public function __construct() {
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this, 'register_cpt' ), 20 );
 		add_action( 'wp_loaded', array( $this, 'build_mega_menu_cache' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -77,6 +78,15 @@ final class BB_Mega_Menu {
 		);
 
 		register_post_type( 'megamenu', apply_filters( 'bb_mega_menu_post_type_args', $args ) );
+	}
+
+	/**
+	 * Load translations.
+	 *
+	 * @return void
+	 */
+	public function load_textdomain(): void {
+		load_plugin_textdomain( 'bb-mega-menu', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 
 	/**
@@ -359,6 +369,7 @@ final class BB_Mega_Menu {
 	 * Allow limited CSS size values.
 	 *
 	 * @param string $value Raw value.
+	 * @param string $fallback Fallback value.
 	 * @return string
 	 */
 	private function sanitize_css_size( string $value, string $fallback ): string {
@@ -380,7 +391,8 @@ final class BB_Mega_Menu {
 		if ( 'transparent' === $value ) {
 			return 'transparent';
 		}
-		return sanitize_hex_color( $value ) ?: '#ffffff';
+		$sanitized = sanitize_hex_color( $value );
+		return $sanitized ? $sanitized : '#ffffff';
 	}
 
 	/**
@@ -450,7 +462,7 @@ final class BB_Mega_Menu {
 	 * @return array
 	 */
 	public function limit_menu_depth( $args ) {
-		if ( self::MENU_LOCATION === $args['theme_location'] ) {
+		if ( isset( $args['theme_location'] ) && self::MENU_LOCATION === $args['theme_location'] ) {
 			$args['depth'] = 1;
 		}
 		return $args;
@@ -536,7 +548,7 @@ final class BB_Mega_Menu {
 		$item_output = $this->replace_link_with_button( $item_output, $menu_id );
 
 		$submenu = sprintf(
-			'<div class="mega-menu" id="%1$s" role="region" aria-label="%2$s Mega Menu" hidden><div class="wrap">%3$s</div></div>',
+			'<div class="mega-menu" id="%1$s" role="region" aria-label="%2$s Mega Menu"><div class="wrap">%3$s</div></div>',
 			esc_attr( $menu_id ),
 			esc_html( $item->title ),
 			apply_filters( 'the_content', $submenu_object->post_content )
@@ -572,7 +584,7 @@ final class BB_Mega_Menu {
 		$block_content = $this->replace_link_with_button( $block_content, $menu_id );
 
 		$submenu = sprintf(
-			'<div class="mega-menu" id="%1$s" role="region" aria-label="%2$s Mega Menu" hidden><div class="wrap">%3$s</div></div>',
+			'<div class="mega-menu" id="%1$s" role="region" aria-label="%2$s Mega Menu"><div class="wrap">%3$s</div></div>',
 			esc_attr( $menu_id ),
 			esc_html( $label ),
 			apply_filters( 'the_content', $submenu_object->post_content )
