@@ -11,7 +11,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Mega menu CPT and frontend behavior for classic menus and the Navigation block.
 
 == Description ==
-BB Mega Menu adds a "Mega Menu" custom post type and injects its content into classic menus and the Navigation block when a menu label matches a Mega Menu post title.
+BB Mega Menu adds a "Mega Menu" custom post type and injects its content into classic menus and the Navigation block when a menu label matches a Mega Menu post title. The matching nav item is converted to a button and the Mega Menu content is injected in the markup.
 
 The plugin does not make external API calls and does not send data off-site. Settings are stored locally in the WordPress options table. On uninstall, the settings option is removed.
 
@@ -27,6 +27,15 @@ Create a Mega Menu post and make sure its title exactly matches a navigation ite
 
 = Does this work with the Navigation block? =
 Yes. The plugin targets `core/navigation-link` blocks and injects the Mega Menu content.
+
+= Does this work with classic menus? =
+Yes. Classic menu support targets the `primary` theme location.
+
+= Where do I configure the settings? =
+Go to Appearance → BB Mega Menu.
+
+= What settings are available? =
+Header / Nav Height Offset, Panel Padding, Z-index, Enable Default Styling, Panel Background, Panel Shadow, and Transition Speed (ms).
 
 = What data does the plugin collect? =
 None. No tracking or external requests are made. The only stored data is the local settings option.
