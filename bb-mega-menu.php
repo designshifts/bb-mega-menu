@@ -22,4 +22,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/class-bb-mega-menu.php';
 
-new BB_Mega_Menu();
+$bb_mega_menu_instance = new BB_Mega_Menu();
+
+add_action( 'bb_core_register', 'bb_mega_menu_register_core_panel' );
+
+/**
+ * Get the plugin instance for integration callbacks.
+ *
+ * @return BB_Mega_Menu|null
+ */
+function bb_mega_menu_get_instance() {
+	global $bb_mega_menu_instance;
+	return ( $bb_mega_menu_instance instanceof BB_Mega_Menu ) ? $bb_mega_menu_instance : null;
+}
+
+/**
+ * Register the plugin in Better Builds Core.
+ *
+ * @return void
+ */
+function bb_mega_menu_register_core_panel(): void {
+	if ( ! function_exists( 'bb_core_register_plugin' ) ) {
+		return;
+	}
+
+	$instance = bb_mega_menu_get_instance();
+	if ( ! $instance ) {
+		return;
+	}
+
+	bb_core_register_plugin(
+		array(
+			'slug'  => 'bb-mega-menu',
+			'label' => __( 'Mega Menu', 'bb-mega-menu' ),
+			'icon'  => 'menu',
+			'pages' => array(
+				'settings' => array( $instance, 'render_settings_page' ),
+			),
+		)
+	);
+}

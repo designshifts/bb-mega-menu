@@ -37,11 +37,66 @@ final class BB_Mega_Menu {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_menu', array( $this, 'register_settings_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_header_styles' ) );
 		add_filter( 'wp_nav_menu_args', array( $this, 'limit_menu_depth' ) );
 		add_filter( 'nav_menu_css_class', array( $this, 'menu_item_classes' ), 10, 4 );
 		add_filter( 'walker_nav_menu_start_el', array( $this, 'display_mega_menus' ), 10, 4 );
 		add_filter( 'render_block', array( $this, 'inject_navigation_block_mega_menu' ), 10, 2 );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
+	}
+
+	/**
+	 * Enqueue admin header styles.
+	 *
+	 * @param string $hook Current admin page.
+	 * @return void
+	 */
+	public function enqueue_admin_header_styles( string $hook ): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$plugin = isset( $_GET['plugin'] ) ? sanitize_key( $_GET['plugin'] ) : '';
+
+		// Mega Menu settings page is registered under Appearance (themes.php).
+		$is_appearance_page = ( 'appearance_page_' . self::SETTINGS_PAGE === $hook );
+		// Also check if accessed via BB Core hub.
+		$is_core_page = ( 'bb-core' === $page && 'bb-mega-menu' === $plugin );
+
+		if ( ! $is_appearance_page && ! $is_core_page ) {
+			return;
+		}
+
+		$css = '
+			.bb-mm-header{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#fff;border-bottom:1px solid #dcdcde;padding:16px 20px;margin:-20px -20px 20px;}
+			.bb-mm-header-left{flex:1;min-width:0;}
+			.bb-mm-header h1{display:flex;align-items:center;gap:8px;margin:0;font-size:23px;font-weight:400;line-height:1.3;}
+			.bb-mm-header-subtitle{margin:6px 0 0;color:#6b7280;font-size:13px;}
+		';
+		wp_add_inline_style( 'wp-admin', $css );
+	}
+
+	/**
+	 * Render page header.
+	 *
+	 * @param string $title   Page title.
+	 * @param string $icon    Dashicon name (without 'dashicons-' prefix).
+	 * @param string $subtitle Optional subtitle.
+	 * @return void
+	 */
+	private function render_page_header( string $title, string $icon = 'menu', string $subtitle = '' ): void {
+		?>
+		<div class="bb-mm-header">
+			<div class="bb-mm-header-left">
+				<h1>
+					<span class="dashicons dashicons-<?php echo esc_attr( $icon ); ?>"></span>
+					<?php echo esc_html( $title ); ?>
+				</h1>
+				<?php if ( $subtitle ) : ?>
+					<p class="bb-mm-header-subtitle"><?php echo esc_html( $subtitle ); ?></p>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -219,7 +274,7 @@ final class BB_Mega_Menu {
 		}
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'BB Mega Menu Settings', 'bb-mega-menu' ); ?></h1>
+			<?php $this->render_page_header( __( 'Settings', 'bb-mega-menu' ), 'menu', __( 'Mega Menu', 'bb-mega-menu' ) ); ?>
 			<form method="post" action="options.php">
 				<?php
 				settings_fields( 'bb_mega_menu_settings_group' );
