@@ -4,16 +4,20 @@ Tags: menu, mega menu, navigation, blocks
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Mega menu CPT and frontend behavior for classic menus and the Navigation block.
 
 == Description ==
-BB Mega Menu adds a "Mega Menu" custom post type and injects its content into classic menus and the Navigation block when a menu label matches a Mega Menu post title. The matching nav item is converted to a button and the Mega Menu content is injected in the markup.
+BB Mega Menu makes building complex, flexible mega menus feel just like working with WordPress content.
 
-The plugin does not make external API calls and does not send data off-site. Settings are stored locally in the WordPress options table. On uninstall, the settings option is removed.
+The plugin adds a Mega Menu custom post type. Each Mega Menu is built using the block editor, giving you full access to any WordPress block: Columns, Groups, Images, Buttons, Lists, Media & Text, Covers, and more. There are no layout restrictions and no proprietary UI to learn.
+
+To activate a Mega Menu, simply create a Mega Menu post and give it the same title as a menu item in your site’s classic menu or Navigation block. When the labels match, BB Mega Menu automatically converts that menu item into a button and injects the Mega Menu’s block content directly into the menu markup on the frontend.
+
+This approach keeps menus content-driven, reusable, and easy to maintain, while letting designers and editors use familiar WordPress tools to create rich navigation experiences tailored to their customers.
 
 == Installation ==
 1. Upload the `bb-mega-menu` folder to the `/wp-content/plugins/` directory.
@@ -53,7 +57,11 @@ None. No tracking or external requests are made. The only stored data is the loc
 Initial release.
 
 = 1.0.1 =
-added missing deploy file
+Added missing deploy file
 
 = 1.0.2 =
-added the correct banner size
+Added the correct banner size
+
+= 1.0.3 =
+* Improved plugin description and documentation clarity.
+* Updated plugin banner
