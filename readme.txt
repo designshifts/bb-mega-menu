@@ -52,15 +52,11 @@ None. No tracking or external requests are made. The only stored data is the loc
 = 1.0.0 =
 * Initial release.
 
-== Upgrade Notice ==
-= 1.0.0 =
-Initial release.
-
 = 1.0.1 =
-Added missing deploy file
+* Added missing deploy file
 
 = 1.0.2 =
-Added the correct banner size
+* Added the correct banner size
 
 = 1.0.3 =
 * Improved plugin description and documentation clarity.
@@ -70,7 +66,14 @@ Added the correct banner size
 * redesigned plugin banners
 
 = 1.0.5 =
-Changing some descriptions
+* Changing some descriptions
 
 = 1.0.6 =
-Updating the Icon
+* Updating the Icon
+
+= 1.0.7 =
+* Reset the Changelog
+
+== Upgrade Notice ==
+= 1.0.0 =
+Initial release.
