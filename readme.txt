@@ -4,11 +4,11 @@ Tags: menu, mega menu, navigation, blocks
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Mega menu CPT and frontend behavior for classic menus and the Navigation block.
+Build flexible mega menus using the block editor, powered by a Mega Menu custom post type.
 
 == Description ==
 BB Mega Menu makes building complex, flexible mega menus feel just like working with WordPress content.
