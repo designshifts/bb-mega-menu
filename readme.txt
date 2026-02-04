@@ -4,7 +4,7 @@ Tags: menu, mega menu, navigation, blocks
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,4 +67,10 @@ Added the correct banner size
 * Updated plugin banner
 
 = 1.0.4 =
-* redesigned plugin banners and icon
+* redesigned plugin banners
+
+= 1.0.5 =
+Changing some descriptions
+
+= 1.0.6 =
+Updating the Icon

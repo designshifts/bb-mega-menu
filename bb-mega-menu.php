@@ -3,7 +3,7 @@
  * Plugin Name: BB Mega Menu
  * Plugin URI: https://betterbuilds.app
  * Description: Build flexible mega menus using the block editor, powered by a Mega Menu custom post type.
- * Version: 1.0.5
+ * Version: 1.0.6
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: Chris Anderson
