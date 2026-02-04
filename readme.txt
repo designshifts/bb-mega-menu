@@ -4,7 +4,7 @@ Tags: menu, mega menu, navigation, blocks
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,7 @@ None. No tracking or external requests are made. The only stored data is the loc
 == Screenshots ==
 1. Settings screen under Appearance → BB Mega Menu.
 2. Mega Menu panel opened on the frontend.
+3. Mega Menu CPT open in the editor.
 
 == Changelog ==
 = 1.0.0 =
@@ -71,8 +72,13 @@ None. No tracking or external requests are made. The only stored data is the loc
 = 1.0.6 =
 * Updating the Icon
 
-= 1.0.7 =
+= 1.0.8 =
 * Reset the Changelog
+
+= 1.0.9 =
+* Clean up the Admin Settings page styling
+* new icon
+* Add a 3rd screenshot
 
 == Upgrade Notice ==
 = 1.0.0 =

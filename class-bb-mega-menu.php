@@ -71,6 +71,31 @@ final class BB_Mega_Menu {
 			.bb-mm-header-left{flex:1;min-width:0;}
 			.bb-mm-header h1{display:flex;align-items:center;gap:8px;margin:0;font-size:23px;font-weight:400;line-height:1.3;}
 			.bb-mm-header-subtitle{margin:6px 0 0;color:#6b7280;font-size:13px;}
+			.bb-mm-settings{max-width:1200px;}
+			.bb-mm-settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin:0 0 20px;}
+			.bb-mm-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;box-shadow:0 1px 2px rgba(0,0,0,0.04);}
+			.bb-mm-card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;}
+			.bb-mm-card-icon{width:36px;height:36px;border-radius:10px;background:#f3f4f6;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto;}
+			.bb-mm-card-title{font-size:16px;margin:0 0 4px;font-weight:600;color:#111827;}
+			.bb-mm-card-subtitle{margin:0;color:#6b7280;font-size:13px;}
+			.bb-mm-field{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:1px solid #f1f2f4;}
+			.bb-mm-field:first-of-type{border-top:0;padding-top:0;}
+			.bb-mm-label{font-weight:600;color:#111827;}
+			.bb-mm-help{margin:0;color:#6b7280;font-size:12px;}
+			.bb-mm-control{display:flex;align-items:center;gap:12px;}
+			.bb-mm-input,.bb-mm-select{width:100%;max-width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;background:#f9fafb;color:#111827;}
+			.bb-mm-input:focus,.bb-mm-select:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,0.15);outline:none;background:#fff;}
+			.bb-mm-color-swatch{width:32px;height:32px;border-radius:8px;border:1px solid #e5e7eb;flex:0 0 auto;}
+			.bb-mm-field--toggle{flex-direction:row;align-items:center;justify-content:space-between;gap:16px;}
+			.bb-mm-toggle{position:relative;display:inline-flex;align-items:center;}
+			.bb-mm-toggle input{opacity:0;position:absolute;left:0;top:0;width:100%;height:100%;margin:0;cursor:pointer;}
+			.bb-mm-toggle-slider{width:46px;height:26px;background:#d1d5db;border-radius:999px;position:relative;display:inline-block;transition:background 0.2s ease;}
+			.bb-mm-toggle-slider::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:999px;box-shadow:0 1px 2px rgba(0,0,0,0.18);transition:transform 0.2s ease;}
+			.bb-mm-toggle input:checked + .bb-mm-toggle-slider{background:#2563eb;}
+			.bb-mm-toggle input:checked + .bb-mm-toggle-slider::after{transform:translateX(20px);}
+			.bb-mm-form-footer{display:flex;justify-content:flex-end;margin-top:16px;}
+			.bb-mm-form-footer .button-primary{min-width:140px;}
+			@media (max-width:782px){.bb-mm-field--toggle{align-items:flex-start;flex-direction:column;}}
 		';
 		wp_add_inline_style( 'wp-admin', $css );
 	}
@@ -272,16 +297,123 @@ final class BB_Mega_Menu {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+		$settings = $this->get_settings();
 		?>
 		<div class="wrap">
 			<?php $this->render_page_header( __( 'Settings', 'bb-mega-menu' ), 'menu', __( 'Mega Menu', 'bb-mega-menu' ) ); ?>
-			<form method="post" action="options.php">
+			<form method="post" action="options.php" class="bb-mm-settings">
 				<?php
 				settings_fields( 'bb_mega_menu_settings_group' );
-				do_settings_sections( self::SETTINGS_PAGE );
-				submit_button();
 				?>
+				<div class="bb-mm-settings-grid">
+					<section class="bb-mm-card">
+						<div class="bb-mm-card-header">
+							<span class="bb-mm-card-icon dashicons dashicons-layout"></span>
+							<div>
+								<h2 class="bb-mm-card-title"><?php esc_html_e( 'Layout', 'bb-mega-menu' ); ?></h2>
+								<p class="bb-mm-card-subtitle"><?php esc_html_e( 'Position and spacing settings', 'bb-mega-menu' ); ?></p>
+							</div>
+						</div>
+						<?php
+						$this->render_setting_control( 'header_offset', __( 'Header / Nav Height Offset', 'bb-mega-menu' ), 'text', $settings );
+						$this->render_setting_control( 'panel_padding', __( 'Panel Padding', 'bb-mega-menu' ), 'text', $settings );
+						$this->render_setting_control( 'z_index', __( 'Z-Index', 'bb-mega-menu' ), 'number', $settings );
+						?>
+					</section>
+					<section class="bb-mm-card">
+						<div class="bb-mm-card-header">
+							<span class="bb-mm-card-icon dashicons dashicons-admin-appearance"></span>
+							<div>
+								<h2 class="bb-mm-card-title"><?php esc_html_e( 'Appearance', 'bb-mega-menu' ); ?></h2>
+								<p class="bb-mm-card-subtitle"><?php esc_html_e( 'Visual styling options', 'bb-mega-menu' ); ?></p>
+							</div>
+						</div>
+						<?php
+						$this->render_setting_control( 'use_default_styling', __( 'Enable Default Styling', 'bb-mega-menu' ), 'checkbox', $settings );
+						$this->render_setting_control( 'panel_bg', __( 'Panel Background Color', 'bb-mega-menu' ), 'text', $settings );
+						$this->render_setting_control( 'panel_shadow', __( 'Panel Shadow', 'bb-mega-menu' ), 'select', $settings, $this->get_shadow_options() );
+						?>
+					</section>
+				</div>
+				<section class="bb-mm-card">
+					<div class="bb-mm-card-header">
+						<span class="bb-mm-card-icon dashicons dashicons-controls-repeat"></span>
+						<div>
+							<h2 class="bb-mm-card-title"><?php esc_html_e( 'Behavior', 'bb-mega-menu' ); ?></h2>
+							<p class="bb-mm-card-subtitle"><?php esc_html_e( 'Animation and interaction settings', 'bb-mega-menu' ); ?></p>
+						</div>
+					</div>
+					<?php $this->render_setting_control( 'transition_ms', __( 'Transition Speed', 'bb-mega-menu' ), 'number', $settings ); ?>
+				</section>
+				<div class="bb-mm-form-footer">
+					<?php echo wp_kses_post( submit_button( __( 'Save Changes', 'bb-mega-menu' ), 'primary', 'submit', false ) ); ?>
+				</div>
 			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render a settings control.
+	 *
+	 * @param string $key Field key.
+	 * @param string $label Field label.
+	 * @param string $type Field type.
+	 * @param array  $settings Current settings.
+	 * @param array  $options Select options.
+	 * @return void
+	 */
+	private function render_setting_control( string $key, string $label, string $type, array $settings, array $options = array() ): void {
+		$descriptions = array(
+			'header_offset'       => __( 'Top offset for the mega menu panel. Use px, rem, or em units.', 'bb-mega-menu' ),
+			'panel_padding'       => __( 'Inner padding for the mega menu panel content.', 'bb-mega-menu' ),
+			'z_index'             => __( 'Stacking order. Higher values appear above other elements.', 'bb-mega-menu' ),
+			'use_default_styling' => __( 'Adds caret indicator and base padding.', 'bb-mega-menu' ),
+			'panel_bg'            => __( 'Hex, RGB, or CSS color value for the panel background.', 'bb-mega-menu' ),
+			'panel_shadow'        => __( 'Add depth with a drop shadow effect.', 'bb-mega-menu' ),
+			'transition_ms'       => __( 'Animation speed in milliseconds.', 'bb-mega-menu' ),
+		);
+		$value = $settings[ $key ] ?? '';
+
+		if ( 'checkbox' === $type ) {
+			?>
+			<div class="bb-mm-field bb-mm-field--toggle">
+				<div>
+					<p class="bb-mm-label"><?php echo esc_html( $label ); ?></p>
+					<?php if ( isset( $descriptions[ $key ] ) ) : ?>
+						<p class="bb-mm-help"><?php echo esc_html( $descriptions[ $key ] ); ?></p>
+					<?php endif; ?>
+				</div>
+				<label class="bb-mm-toggle">
+					<input type="checkbox" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( (bool) $value, true ); ?> />
+					<span class="bb-mm-toggle-slider" aria-hidden="true"></span>
+				</label>
+			</div>
+			<?php
+			return;
+		}
+		?>
+		<div class="bb-mm-field">
+			<label class="bb-mm-label" for="bb-mm-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
+			<div class="bb-mm-control">
+				<?php if ( 'select' === $type ) : ?>
+					<select id="bb-mm-<?php echo esc_attr( $key ); ?>" class="bb-mm-select" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[<?php echo esc_attr( $key ); ?>]">
+						<?php foreach ( $options as $option_value => $option_label ) : ?>
+							<option value="<?php echo esc_attr( $option_value ); ?>" <?php selected( $value, $option_value ); ?>>
+								<?php echo esc_html( $option_label ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				<?php else : ?>
+					<input id="bb-mm-<?php echo esc_attr( $key ); ?>" class="bb-mm-input" type="<?php echo esc_attr( $type ); ?>" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( $value ); ?>" />
+					<?php if ( 'panel_bg' === $key ) : ?>
+						<span class="bb-mm-color-swatch" style="background:<?php echo esc_attr( $value ); ?>"></span>
+					<?php endif; ?>
+				<?php endif; ?>
+			</div>
+			<?php if ( isset( $descriptions[ $key ] ) ) : ?>
+				<p class="bb-mm-help"><?php echo esc_html( $descriptions[ $key ] ); ?></p>
+			<?php endif; ?>
 		</div>
 		<?php
 	}
