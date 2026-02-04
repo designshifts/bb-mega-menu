@@ -4,7 +4,7 @@ Tags: menu, mega menu, navigation, blocks
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,9 @@ None. No tracking or external requests are made. The only stored data is the loc
 
 = 1.1.0 =
 Added the wrong icon, needed SVG
+
+= 1.1.1 =
+Still learning the correct file formats for the WP SVN. New SVG Icon
 
 == Upgrade Notice ==
 = 1.0.0 =
