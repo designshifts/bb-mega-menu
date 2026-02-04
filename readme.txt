@@ -4,7 +4,7 @@ Tags: menu, mega menu, navigation, blocks
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9
-Stable tag: 1.0.9
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,6 +79,9 @@ None. No tracking or external requests are made. The only stored data is the loc
 * Clean up the Admin Settings page styling
 * new icon
 * Add a 3rd screenshot
+
+= 1.1.0 =
+Added the wrong icon, needed SVG
 
 == Upgrade Notice ==
 = 1.0.0 =
