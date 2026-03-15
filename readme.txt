@@ -46,8 +46,9 @@ None. No tracking or external requests are made. The only stored data is the loc
 
 == Screenshots ==
 1. Settings screen under Appearance → BB Mega Menu.
-2. Mega Menu panel opened on the frontend.
+2. Settings page to create your new Mega Menus.
 3. Mega Menu CPT open in the editor.
+4. Mega Menu panel opened on the frontend.
 
 == Changelog ==
 = 1.0.0 =
@@ -85,6 +86,9 @@ Added the wrong icon, needed SVG
 
 = 1.1.1 =
 Still learning the correct file formats for the WP SVN. New SVG Icon
+
+= 1.1.2 =
+New Screenshots
 
 == Upgrade Notice ==
 = 1.0.0 =
